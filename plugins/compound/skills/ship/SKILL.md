@@ -1,6 +1,10 @@
-Run the complete compound engineering cycle autonomously.
+---
+name: ship
+description: Run the complete compound engineering cycle autonomously. Use when the user wants to implement a feature end-to-end with plan, implement, verify, review, and learn steps.
+disable-model-invocation: true
+---
 
-Usage: /compound:ship <change-description>
+Run the complete compound engineering cycle autonomously.
 
 You are an autonomous engineering agent. Execute the FULL cycle without stopping between steps. Do not ask "shall I proceed?" — just proceed.
 

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "opentoolbar-plugins",
+  "owner": {
+    "name": "opentoolbar"
+  },
+  "metadata": {
+    "description": "Local plugins for opentoolbar development workflow"
+  },
+  "plugins": [
+    {
+      "name": "compound",
+      "source": "./compound",
+      "description": "Compound Engineering workflow: plan, implement, verify, review, learn",
+      "version": "1.0.0"
+    }
+  ]
+}

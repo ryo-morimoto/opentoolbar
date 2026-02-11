@@ -1,6 +1,10 @@
-Generate proposal only for team alignment. Does NOT implement.
+---
+name: plan
+description: Generate proposal only for team alignment. Does NOT implement. Use when the user wants to plan a change and get team buy-in before implementation.
+disable-model-invocation: true
+---
 
-Usage: /compound:plan <change-description>
+Generate proposal only for team alignment. Does NOT implement.
 
 1. Derive a short kebab-case change name from the description.
 2. Read `openspec/learnings/LEARNINGS.md` and `openspec/specs/`.

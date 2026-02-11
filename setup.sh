@@ -13,7 +13,7 @@ set -euo pipefail
 OPENSPEC_DIR="openspec"
 SCHEMA_DIR="${OPENSPEC_DIR}/schemas/compound"
 TEMPLATE_DIR="${SCHEMA_DIR}/templates"
-CLAUDE_CMD_DIR=".claude/commands"
+PLUGINS_DIR="plugins"
 
 info()  { printf "\033[0;36m▸ %s\033[0m\n" "$1"; }
 ok()    { printf "\033[0;32m✓ %s\033[0m\n" "$1"; }
@@ -30,7 +30,7 @@ info "OpenSpec を初期化中..."
 if [ -d "$OPENSPEC_DIR" ] && [ -f "${OPENSPEC_DIR}/project.md" ]; then
   warn "OpenSpec は既に初期化済み。スキーマのみインストールします。"
 else
-  npx openspec@latest init --force
+  bunx @fission-ai/openspec@latest init --tools claude --force
   ok "OpenSpec 初期化完了"
 fi
 
@@ -220,127 +220,19 @@ EOF
   ok "LEARNINGS.md 作成完了"
 fi
 
-# === Step 4: Claude Code オーケストレーションコマンド ===
-info "Claude Code コマンドをインストール中..."
-mkdir -p "$CLAUDE_CMD_DIR"
+# === Step 4: Compound Engineering プラグイン ===
+info "Compound Engineering プラグインをインストール中..."
 
-# --- /compound:ship ---
-cat > "${CLAUDE_CMD_DIR}/compound-ship.md" << 'EOF'
-Run the complete compound engineering cycle autonomously.
-
-Usage: /compound:ship <change-description>
-
-You are an autonomous engineering agent. Execute the FULL cycle without stopping between steps. Do not ask "shall I proceed?" — just proceed.
-
-## Step 1: Plan
-
-- Derive a short kebab-case change name from the description.
-- Read `openspec/learnings/LEARNINGS.md` — incorporate past lessons.
-- `/opsx:new <change-name>` then `/opsx:ff` to generate proposal + tasks.
-- Proposal: under 30 lines, What/Why/Scope only.
-- Do NOT stop. Proceed to Step 2.
-
-## Step 2: Implement
-
-- `/opsx:apply` — execute all tasks via red/green TDD.
-- Run existing test suite after implementation. Fix failures before proceeding.
-- Do NOT stop. Proceed to Step 3.
-
-## Step 3: Verify (Showboat + Rodney)
-
-- Run `uvx showboat --help` to learn available commands.
-- If change involves web UI, also run `uvx rodney --help`.
-- Build demo.md using ONLY showboat commands (never write demo.md directly):
-  1. `showboat init openspec/changes/<change-name>/demo.md '<Title> - Demo'`
-  2. For EACH scenario from the proposal/specs:
-     - `showboat note` to describe the scenario
-     - `showboat exec` to run actual commands and record output
-     - For web UI: `rodney start` → `rodney open` → `rodney screenshot` → `showboat image`
-  3. `showboat note` for final summary
-- Run `showboat verify openspec/changes/<change-name>/demo.md`.
-- If verify fails: `showboat pop` the failing section, fix, re-record.
-- If rodney was used: `rodney stop`.
-- Do NOT stop. Proceed to Step 4.
-
-## Step 4: Review
-
-- `/opsx:continue` — generate review.md and learnings.md.
-- Review BOTH the code AND demo.md.
-- Check: does demo.md cover all proposal scenarios? Does `showboat verify` pass?
-- If NO [MUST FIX] → proceed to Step 5.
-- If [MUST FIX] → fix autonomously (re-record affected demo sections too), re-review. After 2 failed attempts → STOP and report to user.
-
-## Step 5: Archive
-
-- `/opsx:archive` — merge specs, archive change (demo.md archived together).
-- Append learnings to `openspec/learnings/LEARNINGS.md`.
-- Print summary:
-  ```
-  ✓ <change-name> complete
-    Files changed: N
-    Demo: N scenarios verified (showboat verify: PASS)
-    Review: N MUST FIX (fixed) / N SHOULD FIX / N CONSIDER
-    Learnings: N captured
-  ```
-
-## Rules
-
-1. Never ask "should I continue?" between steps.
-2. Only stop for: unresolvable MUST FIX (after 2 attempts) or unfixable test failures.
-3. Always read LEARNINGS.md before planning.
-4. NEVER write demo.md directly — always use showboat/rodney commands.
-5. Every proposal scenario must appear in demo.md.
-6. Append (don't overwrite) LEARNINGS.md.
-EOF
-
-ok "/compound:ship"
-
-# --- /compound:review ---
-cat > "${CLAUDE_CMD_DIR}/compound-review.md" << 'EOF'
-Review already-implemented code retroactively, with demo verification.
-
-Usage: /compound:review <description-or-git-ref>
-
-Run without stopping between steps.
-
-## Step 1: Retroactive Change
-
-- `/opsx:new <change-name>`
-- Generate proposal.md from actual code diff.
-- Generate tasks.md retroactively — all tasks marked `[x]`.
-
-## Step 2: Verify (Showboat)
-
-- Build demo.md with showboat commands to verify existing implementation.
-- `showboat verify` must pass.
-
-## Step 3: Review + Learnings
-
-- `/opsx:continue` — review.md + learnings.md from code AND demo.
-- [MUST FIX] → fix + re-record demo. Stop after 2 failed attempts.
-
-## Step 4: Archive
-
-- `/opsx:archive` — append learnings. Print summary.
-EOF
-
-ok "/compound:review"
-
-# --- /compound:plan ---
-cat > "${CLAUDE_CMD_DIR}/compound-plan.md" << 'EOF'
-Generate proposal only for team alignment. Does NOT implement.
-
-Usage: /compound:plan <change-description>
-
-1. `/opsx:new <change-name>`
-2. Generate proposal.md only (What/Why/Scope, under 30 lines).
-3. STOP. Print the proposal and wait for feedback.
-
-After team approval, run `/compound:ship <change-name>` to implement.
-The existing proposal will be reused.
-EOF
-
-ok "/compound:plan"
+# プラグインファイルは plugins/ に同梱済み。マーケットプレース登録+インストールのみ。
+if command -v claude >/dev/null 2>&1; then
+  claude plugin marketplace add "${PWD}/${PLUGINS_DIR}" 2>/dev/null || true
+  claude plugin install compound@opentoolbar-plugins --scope project 2>/dev/null || true
+  ok "compound プラグイン登録完了 (/compound:ship, /compound:plan, /compound:review)"
+else
+  warn "claude CLI が見つかりません。手動で登録してください:"
+  warn "  claude plugin marketplace add ./plugins"
+  warn "  claude plugin install compound@opentoolbar-plugins --scope project"
+fi
 
 # === Step 5: project.md ===
 if [ -f "${OPENSPEC_DIR}/project.md" ] && ! grep -q "Compound Engineering" "${OPENSPEC_DIR}/project.md"; then
@@ -348,7 +240,7 @@ if [ -f "${OPENSPEC_DIR}/project.md" ] && ! grep -q "Compound Engineering" "${OP
 
 ## Compound Engineering Guidelines
 
-### Commands
+### Skills
 - `/compound:ship <desc>` — Full autonomous cycle: plan → implement → verify → review → learn → archive.
 - `/compound:review <ref>` — Retroactive review with demo verification.
 - `/compound:plan <desc>` — Proposal only (team alignment).
@@ -388,7 +280,7 @@ else
 fi
 
 # === Step 8: AI ツール設定再生成 ===
-npx openspec@latest update 2>/dev/null || warn "openspec update 失敗。手動: npx openspec update"
+bunx @fission-ai/openspec@latest update --force 2>/dev/null || warn "openspec update 失敗。手動: bunx @fission-ai/openspec update"
 
 # === 完了 ===
 echo ""

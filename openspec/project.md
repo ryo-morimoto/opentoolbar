@@ -35,7 +35,7 @@ AIエージェントが自動で修正提案・実装
 
 ## Compound Engineering Guidelines
 
-### Commands
+### Skills
 - `/compound:ship <desc>` — Full autonomous cycle: plan → implement → verify → review → learn → archive.
 - `/compound:review <ref>` — Retroactive review with demo verification.
 - `/compound:plan <desc>` — Proposal only (team alignment).

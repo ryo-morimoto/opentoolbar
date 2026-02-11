@@ -1,6 +1,10 @@
-Review already-implemented code retroactively, with demo verification.
+---
+name: review
+description: Review already-implemented code retroactively, with demo verification. Use when the user wants to review existing code changes or a git ref.
+disable-model-invocation: true
+---
 
-Usage: /compound:review <description-or-git-ref>
+Review already-implemented code retroactively, with demo verification.
 
 Run without stopping between steps.
 

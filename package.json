@@ -6,11 +6,13 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "unpkg": "dist/opentoolbar.global.js",
+  "jsdelivr": "dist/opentoolbar.global.js",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./cli": {
       "import": "./dist/cli.mjs",
@@ -47,7 +49,10 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.0.0",
+    "jsdom": "^24.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
     "vite": "^5.0.0",
