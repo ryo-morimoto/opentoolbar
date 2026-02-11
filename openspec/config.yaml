@@ -1,1 +1,22 @@
-default_schema: compound
+schema: compound
+
+context: |
+  opentoolbar: Open-source alternative to Vercel Toolbar.
+  Leave comments directly on UI and pass them as structured data to AI agents.
+
+  Tech stack: TypeScript, React (target apps), Vanilla JS (script tag core), Vitest
+  Distribution: npm package + CDN (unpkg/jsdelivr) + CLI
+  Storage: localStorage (fallback) + .comments/ files (CLI mode)
+  Agent integration: Prompt copy + MCP server via CLI
+
+rules:
+  proposal:
+    - Keep under 30 lines. Longer = scope too big, split it.
+    - Reference openspec/learnings/LEARNINGS.md for past lessons.
+  specs:
+    - Use Given/When/Then format for scenarios.
+    - Use RFC 2119 keywords (MUST, SHOULD, MAY).
+    - Reference existing patterns before inventing new ones.
+  tasks:
+    - Each task must be verifiable with acceptance criteria.
+    - Group into phases if more than 5 tasks.
