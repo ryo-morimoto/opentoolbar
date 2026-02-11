@@ -1,0 +1,30 @@
+name: compound
+version: 1
+description: |
+  Compound Engineering workflow with verification.
+  /compound:ship で 計画→実装→検証→レビュー→学習 が自律的に回る。
+
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: What / Why / Scope だけ。How は書かない。
+
+  - id: tasks
+    generates: tasks.md
+    description: 実装チェックリスト。
+    requires: [proposal]
+
+  - id: demo
+    generates: demo.md
+    description: Showboat/Rodneyで実装の動作証拠を記録。
+    requires: [tasks]
+
+  - id: review
+    generates: review.md
+    description: 実装済みコード + デモ結果に対する設計レビュー。
+    requires: [demo]
+
+  - id: learnings
+    generates: learnings.md
+    description: 知識の複利的蓄積。
+    requires: [review]
