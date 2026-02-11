@@ -1,26 +1,26 @@
 # Architecture
 
-## 導入方式
+## Integration Methods
 
-### 優先度順
+### Priority Order
 
-1. **Script tag（MVP）** - 最もシンプル、react-grabと同じアプローチ
-2. **Vite/Next Plugin（将来）** - より楽な導入
-3. **CLI + Proxy（将来）** - 非侵襲、完全な機能
+1. **Script tag (MVP)** — Simplest approach, same as react-grab
+2. **Vite/Next Plugin (future)** — Easier integration
+3. **CLI + Proxy (future)** — Non-invasive, full feature set
 
-### Script tag方式
+### Script Tag Approach
 
 ```html
 <script
   src="https://unpkg.com/opentoolbar"
-  data-project-id="my-app"           <!-- 必須: プロジェクト識別 -->
-  data-branch="feature-a"            <!-- オプション: ブランチ -->
-  data-cli-port="4567"               <!-- オプション: CLIポート -->
+  data-project-id="my-app"           <!-- Required: project identifier -->
+  data-branch="feature-a"            <!-- Optional: branch -->
+  data-cli-port="4567"               <!-- Optional: CLI port -->
 ></script>
 ```
 
 ```tsx
-// Next.js / Vite での使用例
+// Usage in Next.js / Vite
 {process.env.NODE_ENV === 'development' && (
   <script
     src="https://unpkg.com/opentoolbar"
@@ -29,55 +29,55 @@
 )}
 ```
 
-## データフロー
+## Data Flow
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  CLI（オプション）                                               │
-│  $ npx opentoolbar --port 3000                                 │
-│  → プロジェクトルートで起動                                       │
-│  → .comments/ ディレクトリにJSON保存                             │
-│  → WebSocket/HTTPで ブラウザと同期                               │
-└─────────────────────────────────────────────────────────────────┘
-                              ↕ 同期
-┌─────────────────────────────────────────────────────────────────┐
-│  ブラウザ（Script tag）                                          │
-│  → CLIが起動していればファイル保存                                │
-│  → CLIがなければlocalStorage（projectId付き）にフォールバック      │
-└─────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------+
+|  CLI (optional)                                               |
+|  $ npx opentoolbar --port 3000                                |
+|  -> Runs at project root                                      |
+|  -> Saves JSON to .comments/ directory                        |
+|  -> Syncs with browser via WebSocket/HTTP                     |
++---------------------------------------------------------------+
+                              | sync
++---------------------------------------------------------------+
+|  Browser (Script tag)                                         |
+|  -> If CLI is running, saves to files                         |
+|  -> If no CLI, falls back to localStorage (with projectId)    |
++---------------------------------------------------------------+
 ```
 
-## マルチプロジェクト/Worktree対応
+## Multi-project / Worktree Support
 
-### 問題
+### Problem
 
 ```
 ~/projects/
-├── my-app/                      # main branch → localhost:3000
-├── my-app-feature-a/            # worktree: feature-a → localhost:3001
-├── my-app-feature-b/            # worktree: feature-b → localhost:3002
-└── another-project/             # 別プロジェクト → localhost:3000（時間差で使用）
++-- my-app/                      # main branch -> localhost:3000
++-- my-app-feature-a/            # worktree: feature-a -> localhost:3001
++-- my-app-feature-b/            # worktree: feature-b -> localhost:3002
++-- another-project/             # different project -> localhost:3000 (time-shared)
 ```
 
-- localhost:3000 だけでは何のプロジェクトか分からない
-- 同一プロジェクトでもブランチごとにコメントを分けたい
-- ブラウザのlocalStorageはドメイン単位で混ざる
+- localhost:3000 alone doesn't identify the project
+- Comments should be separated by branch even within the same project
+- Browser localStorage is shared per domain, causing conflicts
 
-### 解決策: ハイブリッド方式
+### Solution: Hybrid Approach
 
-| モード | 条件 | 保存先 | Git管理 |
-|--------|------|--------|---------|
-| CLIモード | CLIが起動中 | `.comments/` ファイル | ✅ 可能 |
-| フォールバック | CLIなし | localStorage + projectId | ❌ |
+| Mode | Condition | Storage | Git-managed |
+|------|-----------|---------|-------------|
+| CLI mode | CLI is running | `.comments/` files | Yes |
+| Fallback | No CLI | localStorage + projectId | No |
 
-### localStorage キー設計
+### localStorage Key Design
 
 ```typescript
 const key = `otb:${projectId}:${branch}:${pathname}`;
-// 例: "otb:my-app:feature-a:/"
+// e.g., "otb:my-app:feature-a:/"
 ```
 
-## ブラウザ ↔ CLI 通信
+## Browser <-> CLI Communication
 
 ```typescript
 // WebSocket messages
@@ -86,30 +86,30 @@ interface Message {
   payload: any;
 }
 
-// 初期接続
-Browser → CLI: { type: 'sync', payload: { pathname: '/' } }
-CLI → Browser: { type: 'sync', payload: { comments: [...] } }
+// Initial connection
+Browser -> CLI: { type: 'sync', payload: { pathname: '/' } }
+CLI -> Browser: { type: 'sync', payload: { comments: [...] } }
 
-// エクスポート（エージェント連携）
-Browser → CLI: { type: 'export', payload: { format: 'prompt' } }
-CLI → Browser: { type: 'export', payload: { content: '## UI Feedback...' } }
+// Export (agent integration)
+Browser -> CLI: { type: 'export', payload: { format: 'prompt' } }
+CLI -> Browser: { type: 'export', payload: { content: '## UI Feedback...' } }
 ```
 
-## CLI検出ロジック
+## CLI Detection Logic
 
 ```typescript
 async function detectCLI(): Promise<CLIConnection | null> {
   const port = getDataAttribute('cli-port') || 4567;
-  
+
   try {
     const res = await fetch(`http://localhost:${port}/health`);
     if (res.ok) {
       return new CLIConnection(new WebSocket(`ws://localhost:${port}`));
     }
   } catch {
-    // CLIが起動していない
+    // CLI is not running
   }
-  
-  return null; // localStorageフォールバック
+
+  return null; // localStorage fallback
 }
 ```

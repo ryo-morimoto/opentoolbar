@@ -5,14 +5,14 @@
 ```typescript
 interface Comment {
   id: string;                     // UUID v4
-  
-  // 要素特定（アンカー）
+
+  // Element identification (anchor)
   anchor: ElementAnchor;
-  
-  // コメント内容
+
+  // Comment content
   text: string;
-  
-  // メタデータ
+
+  // Metadata
   status: 'active' | 'outdated';
   createdAt: string;              // ISO8601
   updatedAt: string;
@@ -21,126 +21,126 @@ interface Comment {
 
 ## ElementAnchor
 
-要素を特定するための情報。CSSセレクタ + 座標のハイブリッド方式。
+Information for identifying an element. Hybrid approach using CSS selector + coordinates.
 
 ```typescript
 interface ElementAnchor {
-  // 主要な特定情報
-  selector: string;               // 一意なCSSセレクタ
-  
-  // react-grabからの追加情報（あれば）
+  // Primary identification
+  selector: string;               // Unique CSS selector
+
+  // Additional info from react-grab (if available)
   componentName?: string;         // "LoginForm"
   filePath?: string;              // "src/components/LoginForm.tsx:24"
-  
-  // フォールバック情報
-  boundingRect: DOMRect;          // 位置・サイズ
-  textContent?: string;           // innerTextの先頭100文字
+
+  // Fallback information
+  boundingRect: DOMRect;          // Position and size
+  textContent?: string;           // First 100 chars of innerText
   tagName: string;                // "BUTTON"
-  
-  // 変更検出用
-  htmlSnapshot: string;           // outerHTMLの先頭500文字
+
+  // Change detection
+  htmlSnapshot: string;           // First 500 chars of outerHTML
 }
 ```
 
-## セレクタ生成アルゴリズム
+## Selector Generation Algorithm
 
 ```typescript
 function generateSelector(element: Element): string {
-  // 1. idがあれば最優先
+  // 1. Prefer id if available
   if (element.id) return `#${element.id}`;
-  
-  // 2. data-testid等があれば使用
+
+  // 2. Use data-testid if available
   const testId = element.getAttribute('data-testid');
   if (testId) return `[data-testid="${testId}"]`;
-  
-  // 3. 親からの相対パスを構築（nth-child等を使用）
+
+  // 3. Build relative path from parent (using nth-child etc.)
   return buildPathSelector(element);
 }
 
 function buildPathSelector(element: Element): string {
   const path: string[] = [];
   let current: Element | null = element;
-  
+
   while (current && current !== document.body) {
     let selector = current.tagName.toLowerCase();
-    
-    // クラス名があれば追加（最初の1-2個）
+
+    // Add class names if present (first 1-2)
     if (current.classList.length > 0) {
       selector += '.' + Array.from(current.classList).slice(0, 2).join('.');
     }
-    
-    // 同じセレクタの兄弟がいれば nth-child
+
+    // Use nth-child if siblings share the same selector
     const siblings = current.parentElement?.querySelectorAll(`:scope > ${selector}`);
     if (siblings && siblings.length > 1) {
       const index = Array.from(siblings).indexOf(current) + 1;
       selector += `:nth-child(${index})`;
     }
-    
+
     path.unshift(selector);
     current = current.parentElement;
   }
-  
+
   return path.join(' > ');
 }
 ```
 
-## 要素の再特定
+## Element Re-identification
 
 ```typescript
 function findElement(anchor: ElementAnchor): Element | null {
-  // 1. セレクタでクエリ
+  // 1. Query by selector
   const bySelector = document.querySelector(anchor.selector);
   if (bySelector) return bySelector;
-  
-  // 2. フォールバック: 座標近くでテキスト一致
+
+  // 2. Fallback: match text near coordinates
   const candidates = document.elementsFromPoint(
     anchor.boundingRect.x + anchor.boundingRect.width / 2,
     anchor.boundingRect.y + anchor.boundingRect.height / 2
   );
-  
+
   for (const el of candidates) {
-    if (el.tagName === anchor.tagName && 
+    if (el.tagName === anchor.tagName &&
         el.textContent?.startsWith(anchor.textContent || '')) {
       return el;
     }
   }
-  
-  return null; // 要素が見つからない（outdated扱い）
+
+  return null; // Element not found (treated as outdated)
 }
 ```
 
-## Outdated検出
+## Outdated Detection
 
 ```typescript
 function checkOutdated(comment: Comment): boolean {
   const element = findElement(comment.anchor);
-  
-  if (!element) return true;  // 要素が消えた
-  
-  // HTMLスナップショットと比較
+
+  if (!element) return true;  // Element disappeared
+
+  // Compare with HTML snapshot
   const currentSnapshot = element.outerHTML.slice(0, 500);
   return currentSnapshot !== comment.anchor.htmlSnapshot;
 }
 ```
 
-## ファイル保存形式
+## File Storage Format
 
-### ディレクトリ構造
+### Directory Structure
 
 ```
 my-app/
-├── .comments/
-│   ├── config.json              # プロジェクト設定
-│   ├── main/                    # ブランチごとにディレクトリ
-│   │   ├── index.json           # ページ "/" のコメント
-│   │   └── about.json           # ページ "/about" のコメント
-│   └── feature-a/
-│       └── index.json
-├── src/
-└── package.json
++-- .comments/
+|   +-- config.json              # Project config
+|   +-- main/                    # Directory per branch
+|   |   +-- index.json           # Comments for page "/"
+|   |   +-- about.json           # Comments for page "/about"
+|   +-- feature-a/
+|       +-- index.json
++-- src/
++-- package.json
 ```
 
-### ページ別JSONファイル
+### Per-page JSON File
 
 ```jsonc
 // .comments/main/index.json
@@ -154,11 +154,11 @@ my-app/
       "anchor": {
         "selector": "#login-btn",
         "boundingRect": { "x": 100, "y": 200, "width": 80, "height": 32 },
-        "textContent": "ログイン",
+        "textContent": "Login",
         "tagName": "BUTTON",
-        "htmlSnapshot": "<button id=\"login-btn\">ログイン</button>"
+        "htmlSnapshot": "<button id=\"login-btn\">Login</button>"
       },
-      "text": "ボタンの色を#2563EBに変更",
+      "text": "Change button color to #2563EB",
       "status": "active",
       "createdAt": "2024-01-15T10:30:00Z",
       "updatedAt": "2024-01-15T10:30:00Z"

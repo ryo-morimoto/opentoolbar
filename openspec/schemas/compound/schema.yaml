@@ -2,29 +2,105 @@ name: compound
 version: 1
 description: |
   Compound Engineering workflow with verification.
-  /compound:ship で 計画→実装→検証→レビュー→学習 が自律的に回る。
+  /compound:ship runs the autonomous cycle: plan -> implement -> verify -> review -> learn.
 
 artifacts:
+  # --- Pre-planning (minimal) ---
   - id: proposal
     generates: proposal.md
-    description: What / Why / Scope だけ。How は書かない。
+    description: What / Why / Scope only. Do not write How.
+    template: proposal.md
+    instruction: |
+      Create a lightweight proposal for this change.
+      RULES:
+      - Write ONLY: What, Why, Scope. Do NOT write How.
+      - Keep under 30 lines. Longer = scope too big, split it.
+      - Use the user's language.
+      - Reference openspec/specs/ and openspec/learnings/LEARNINGS.md.
+    requires: []
 
   - id: tasks
     generates: tasks.md
-    description: 実装チェックリスト。
+    description: Implementation checklist.
+    template: tasks.md
+    instruction: |
+      Generate an implementation checklist from the proposal.
+      RULES:
+      - Each task: verifiable action with acceptance criteria.
+      - Group into phases if >5 tasks.
+      - Reference openspec/learnings/ to avoid past mistakes.
+      - Same language as proposal.
     requires: [proposal]
 
+  # --- Verification (Showboat/Rodney) ---
   - id: demo
     generates: demo.md
-    description: Showboat/Rodneyで実装の動作証拠を記録。
+    description: Record proof of implementation via Showboat/Rodney.
+    template: demo.md
+    instruction: |
+      Create a demo document that PROVES the implementation works.
+      Use Showboat CLI to record actual command execution results.
+
+      SETUP:
+      - Run `uvx showboat --help` to learn all available commands.
+      - If the change involves a web UI, also run `uvx rodney --help`.
+
+      PROCESS:
+      1. `showboat init <change-dir>/demo.md '<Change Title> - Demo'`
+      2. For EACH scenario in the proposal/specs:
+         a. `showboat note` — describe what this scenario tests.
+         b. `showboat exec` — run the actual command/API call and record output.
+         c. If web UI: `rodney start` -> `rodney open` -> `rodney screenshot` -> `showboat image`.
+      3. `showboat note` — final summary of what was verified.
+
+      RULES:
+      - NEVER write to demo.md directly. ALWAYS use showboat commands.
+      - Every scenario in proposal/specs MUST have a corresponding demo section.
+      - If a scenario cannot be demoed via CLI/browser, note why and what was done instead.
+      - Run `showboat verify <demo.md>` at the end to confirm all outputs are reproducible.
+      - If verify fails, fix the issue and re-record that section with `showboat pop` + `showboat exec`.
     requires: [tasks]
 
+  # --- Post-implementation review ---
   - id: review
     generates: review.md
-    description: 実装済みコード + デモ結果に対する設計レビュー。
+    description: Design review of implemented code + demo results.
+    template: review.md
+    instruction: |
+      Review the IMPLEMENTED code AND the demo document.
+
+      REVIEW CRITERIA:
+      1. Design coherence — will it break under growth?
+      2. Pattern consistency — follows existing codebase patterns?
+      3. Future friction — next change easier or harder?
+      4. Scope check — stayed within proposal scope?
+      5. Demo coverage — does demo.md cover all proposal scenarios?
+      6. Demo integrity — does `showboat verify demo.md` pass?
+
+      RULES:
+      - Read actual code diff AND demo.md.
+      - Cite file paths and line ranges.
+      - Classify: [MUST FIX] / [SHOULD FIX] / [CONSIDER].
+      - If demo is missing scenarios, classify as [MUST FIX].
+      - No issues = say so. Don't invent problems.
     requires: [demo]
 
+  # --- Knowledge accumulation ---
   - id: learnings
     generates: learnings.md
-    description: 知識の複利的蓄積。
+    description: Compound knowledge accumulation.
+    template: learnings.md
+    instruction: |
+      Extract reusable knowledge from this change cycle.
+      CAPTURE: Patterns discovered, Mistakes caught, Design decisions, Warnings for future.
+      RULES:
+      - Each learning: actionable, 2-3 lines max.
+      - Include verification insights (what showboat/rodney revealed that tests missed).
+      - Reference specific files when relevant.
+      - Append to openspec/learnings/LEARNINGS.md (don't overwrite).
+      - Same language as proposal.
     requires: [review]
+
+apply:
+  requires: [tasks]
+  tracks: tasks.md

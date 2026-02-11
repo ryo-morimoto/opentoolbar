@@ -1,42 +1,42 @@
 # opentoolbar
 
-Open-source alternative to Vercel Toolbar. UI上で直接コメントを残し、**AIエージェントに構造化して渡せる**ことが最大の差別化ポイント。
+Open-source alternative to Vercel Toolbar. Leave comments directly on UI and pass them as structured data to AI agents — that's the key differentiator.
 
 ## Vision
 
 ```
-開発者/デザイナーがUIを見ながらコメント
-           ↓
-   構造化データとして保存
-           ↓
-AIエージェントが自動で修正提案・実装
+Developers/designers leave comments while viewing UI
+           |
+   Stored as structured data
+           |
+AI agents automatically suggest fixes and implement them
 ```
 
-## 差別化
+## Differentiation
 
-| ツール | 要素選択 | コメント | エージェント連携 |
-|--------|----------|----------|------------------|
-| @vercel/toolbar | ✅ | ✅ | ❌ |
-| react-grab | ✅ | ❌ | ✅（コピーのみ） |
-| **opentoolbar** | ✅ | ✅ | ✅（構造化+MCP） |
+| Tool | Element selection | Comments | Agent integration |
+|------|-------------------|----------|-------------------|
+| @vercel/toolbar | Yes | Yes | No |
+| react-grab | Yes | No | Yes (copy only) |
+| **opentoolbar** | Yes | Yes | Yes (structured + MCP) |
 
-## ターゲットユーザー
+## Target Users
 
-- フロントエンド開発者（セルフレビュー）
-- デザイナー・PM（デザインフィードバック）
-- AIエージェント（Cursor, Claude Code等）と連携したい開発者
+- Frontend developers (self-review)
+- Designers & PMs (design feedback)
+- Developers who want integration with AI agents (Cursor, Claude Code, etc.)
 
-## 技術スタック
+## Tech Stack
 
 - TypeScript
-- React（開発対象アプリ用）
-- Vanilla JS（Script tag版のコアロジック）
-- Vitest（テスト）
+- React (for target apps)
+- Vanilla JS (core logic for script tag version)
+- Vitest (testing)
 
 ## Compound Engineering Guidelines
 
 ### Skills
-- `/compound:ship <desc>` — Full autonomous cycle: plan → implement → verify → review → learn → archive.
+- `/compound:ship <desc>` — Full autonomous cycle: plan -> implement -> verify -> review -> learn -> archive.
 - `/compound:review <ref>` — Retroactive review with demo verification.
 - `/compound:plan <desc>` — Proposal only (team alignment).
 

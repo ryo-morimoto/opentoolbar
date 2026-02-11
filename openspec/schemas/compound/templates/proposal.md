@@ -1,10 +1,10 @@
 # Proposal: {{change_name}}
 
 ## What
-<!-- 何を作る/変更するか。1-3文。 -->
+<!-- What to build or change. 1-3 sentences. -->
 
 ## Why
-<!-- なぜ必要か。 -->
+<!-- Why is this needed? -->
 
 ## Scope
-<!-- IN: 含むもの / OUT: 含めないもの -->
+<!-- IN: What's included / OUT: What's excluded -->

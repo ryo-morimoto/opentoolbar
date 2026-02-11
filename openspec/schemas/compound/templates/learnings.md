@@ -5,7 +5,7 @@
 ## Mistakes Caught
 
 ## Verification Insights
-<!-- テストでは見つからなかったがデモで発見した問題 -->
+<!-- Issues found in demo that tests missed -->
 
 ## Design Decisions
 

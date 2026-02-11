@@ -1,32 +1,32 @@
 # Open Decisions
 
-実装時に決定する事項。
+Decisions to be made during implementation.
 
-## 決定済み
+## Decided
 
-| # | 項目 | 決定 | 理由 |
-|---|------|------|------|
-| 1 | 対象フレームワーク | React | スコープを絞る |
-| 2 | ストレージ | localStorage + CLI（ハイブリッド） | マルチプロジェクト対応 |
-| 3 | 認証 | 匿名 | シンプルに |
-| 4 | 配布形式 | npm package | 標準的 |
-| 5 | 要素バインド | CSSセレクタ + 座標 | Vercelと同様 |
-| 6 | スレッド | 単一コメント | MVPでシンプルに |
-| 7 | ステータス | active / outdated | 必要十分 |
+| # | Item | Decision | Reason |
+|---|------|----------|--------|
+| 1 | Target framework | React | Narrow the scope |
+| 2 | Storage | localStorage + CLI (hybrid) | Multi-project support |
+| 3 | Authentication | Anonymous | Keep it simple |
+| 4 | Distribution | npm package | Standard approach |
+| 5 | Element binding | CSS selector + coordinates | Same as Vercel |
+| 6 | Threads | Single comment | Keep MVP simple |
+| 7 | Status | active / outdated | Sufficient for needs |
 
-## 未決定（MVP実装時に決定）
+## Undecided (to be decided during MVP implementation)
 
-| # | 項目 | 選択肢 | 備考 |
-|---|------|--------|------|
-| 1 | react-grab連携 | A: 依存 / B: 参考にして独自実装 | 要素選択ロジック |
-| 2 | `.comments/` のgit管理 | A: デフォルトignore / B: デフォルト含める | チーム共有の意図 |
-| 3 | ショートカットカスタマイズ | A: 固定 / B: 設定可能 | |
+| # | Item | Options | Notes |
+|---|------|---------|-------|
+| 1 | react-grab integration | A: Depend on it / B: Independent implementation inspired by it | Element selection logic |
+| 2 | `.comments/` git management | A: Ignored by default / B: Included by default | Intent for team sharing |
+| 3 | Shortcut customization | A: Fixed / B: Configurable | |
 
-## 将来の検討事項（MVP後）
+## Future Considerations (post-MVP)
 
-| # | 項目 | 優先度 | 備考 |
-|---|------|--------|------|
-| 1 | スクリーンショット自動取得 | 中 | html2canvas or 手動 |
-| 2 | Vite/Next Plugin | 中 | より楽な導入 |
-| 3 | Markdown対応 | 低 | コメント本文の書式 |
-| 4 | 複数ブラウザ同期 | 低 | リアルタイム or リロード時 |
+| # | Item | Priority | Notes |
+|---|------|----------|-------|
+| 1 | Auto screenshot capture | Medium | html2canvas or manual |
+| 2 | Vite/Next Plugin | Medium | Easier integration |
+| 3 | Markdown support | Low | Comment body formatting |
+| 4 | Multi-browser sync | Low | Real-time or on reload |

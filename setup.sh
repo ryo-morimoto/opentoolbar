@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # ============================================================
-# OpenSpec + Compound Engineering セットアップ
+# OpenSpec + Compound Engineering Setup
 #
-# Showboat/Rodney による検証フェーズ付き
+# Includes verification phase with Showboat/Rodney
 #
-# 使い方: bash setup.sh
-# 前提: Node.js 20.19.0+, Gitリポジトリルートで実行
+# Usage: bash setup.sh
+# Requirements: Node.js 20.19.0+, run at git repo root
 # ============================================================
 
 OPENSPEC_DIR="openspec"
@@ -20,22 +20,22 @@ ok()    { printf "\033[0;32m✓ %s\033[0m\n" "$1"; }
 warn()  { printf "\033[0;33m⚠ %s\033[0m\n" "$1"; }
 err()   { printf "\033[0;31m✗ %s\033[0m\n" "$1"; exit 1; }
 
-command -v node >/dev/null 2>&1 || err "Node.js が見つかりません (20.19.0+ 必須)"
+command -v node >/dev/null 2>&1 || err "Node.js not found (20.19.0+ required)"
 NODE_MAJOR=$(node -v | sed 's/v//' | cut -d. -f1)
-[ "$NODE_MAJOR" -lt 20 ] && err "Node.js 20.19.0+ が必要です (現在: $(node -v))"
-[ ! -d ".git" ] && err "Gitリポジトリのルートで実行してください"
+[ "$NODE_MAJOR" -lt 20 ] && err "Node.js 20.19.0+ required (current: $(node -v))"
+[ ! -d ".git" ] && err "Please run at the git repository root"
 
-# === Step 1: OpenSpec 初期化 ===
-info "OpenSpec を初期化中..."
+# === Step 1: Initialize OpenSpec ===
+info "Initializing OpenSpec..."
 if [ -d "$OPENSPEC_DIR" ] && [ -f "${OPENSPEC_DIR}/project.md" ]; then
-  warn "OpenSpec は既に初期化済み。スキーマのみインストールします。"
+  warn "OpenSpec already initialized. Installing schemas only."
 else
   bunx @fission-ai/openspec@latest init --tools claude --force
-  ok "OpenSpec 初期化完了"
+  ok "OpenSpec initialized"
 fi
 
-# === Step 2: compound スキーマ ===
-info "compound スキーマを作成中..."
+# === Step 2: Compound schema ===
+info "Creating compound schema..."
 mkdir -p "$TEMPLATE_DIR"
 
 cat > "${SCHEMA_DIR}/schema.yaml" << 'EOF'
@@ -43,13 +43,13 @@ name: compound
 version: 1
 description: |
   Compound Engineering workflow with verification.
-  /compound:ship で 計画→実装→検証→レビュー→学習 が自律的に回る。
+  /compound:ship runs the autonomous cycle: plan -> implement -> verify -> review -> learn.
 
 artifacts:
-  # --- 事前計画 (最小限) ---
+  # --- Pre-planning (minimal) ---
   - id: proposal
     generates: proposal.md
-    description: What / Why / Scope だけ。How は書かない。
+    description: What / Why / Scope only. Do not write How.
     template: proposal.md
     instruction: |
       Create a lightweight proposal for this change.
@@ -62,7 +62,7 @@ artifacts:
 
   - id: tasks
     generates: tasks.md
-    description: 実装チェックリスト。
+    description: Implementation checklist.
     template: tasks.md
     instruction: |
       Generate an implementation checklist from the proposal.
@@ -73,10 +73,10 @@ artifacts:
       - Same language as proposal.
     requires: [proposal]
 
-  # --- 検証 (Showboat/Rodney) ---
+  # --- Verification (Showboat/Rodney) ---
   - id: demo
     generates: demo.md
-    description: Showboat/Rodneyで実装の動作証拠を記録。
+    description: Record proof of implementation via Showboat/Rodney.
     template: demo.md
     instruction: |
       Create a demo document that PROVES the implementation works.
@@ -91,7 +91,7 @@ artifacts:
       2. For EACH scenario in the proposal/specs:
          a. `showboat note` — describe what this scenario tests.
          b. `showboat exec` — run the actual command/API call and record output.
-         c. If web UI: `rodney start` → `rodney open` → `rodney screenshot` → `showboat image`.
+         c. If web UI: `rodney start` -> `rodney open` -> `rodney screenshot` -> `showboat image`.
       3. `showboat note` — final summary of what was verified.
 
       RULES:
@@ -102,10 +102,10 @@ artifacts:
       - If verify fails, fix the issue and re-record that section with `showboat pop` + `showboat exec`.
     requires: [tasks]
 
-  # --- 実装後レビュー ---
+  # --- Post-implementation review ---
   - id: review
     generates: review.md
-    description: 実装済みコード + デモ結果に対する設計レビュー。
+    description: Design review of implemented code + demo results.
     template: review.md
     instruction: |
       Review the IMPLEMENTED code AND the demo document.
@@ -126,10 +126,10 @@ artifacts:
       - No issues = say so. Don't invent problems.
     requires: [demo]
 
-  # --- 知識の蓄積 ---
+  # --- Knowledge accumulation ---
   - id: learnings
     generates: learnings.md
-    description: 知識の複利的蓄積。
+    description: Compound knowledge accumulation.
     template: learnings.md
     instruction: |
       Extract reusable knowledge from this change cycle.
@@ -147,18 +147,18 @@ apply:
   tracks: tasks.md
 EOF
 
-# --- テンプレート ---
+# --- Templates ---
 cat > "${TEMPLATE_DIR}/proposal.md" << 'EOF'
 # Proposal: {{change_name}}
 
 ## What
-<!-- 何を作る/変更するか。1-3文。 -->
+<!-- What to build or change. 1-3 sentences. -->
 
 ## Why
-<!-- なぜ必要か。 -->
+<!-- Why is this needed? -->
 
 ## Scope
-<!-- IN: 含むもの / OUT: 含めないもの -->
+<!-- IN: What's included / OUT: What's excluded -->
 EOF
 
 cat > "${TEMPLATE_DIR}/tasks.md" << 'EOF'
@@ -199,37 +199,37 @@ cat > "${TEMPLATE_DIR}/learnings.md" << 'EOF'
 ## Patterns Discovered
 ## Mistakes Caught
 ## Verification Insights
-<!-- テストでは見つからなかったがデモで発見した問題 -->
+<!-- Issues found in demo that tests missed -->
 ## Design Decisions
 ## Warnings for Future
 EOF
 
-ok "compound スキーマ作成完了"
+ok "Compound schema created"
 
-# === Step 3: learnings ===
+# === Step 3: Learnings ===
 mkdir -p "${OPENSPEC_DIR}/learnings"
 if [ ! -f "${OPENSPEC_DIR}/learnings/LEARNINGS.md" ]; then
   cat > "${OPENSPEC_DIR}/learnings/LEARNINGS.md" << 'EOF'
 # Project Learnings
 
-> AI agentは新しいchange開始時にこのファイルを参照する。
-> /compound:ship の archive ステップで自動追記される。
+> AI agents reference this file when starting a new change.
+> Automatically appended during the /compound:ship archive step.
 
 ---
 EOF
-  ok "LEARNINGS.md 作成完了"
+  ok "LEARNINGS.md created"
 fi
 
-# === Step 4: Compound Engineering プラグイン ===
-info "Compound Engineering プラグインをインストール中..."
+# === Step 4: Compound Engineering Plugin ===
+info "Installing Compound Engineering plugin..."
 
-# プラグインファイルは plugins/ に同梱済み。マーケットプレース登録+インストールのみ。
+# Plugin files are bundled in plugins/. Only register + install.
 if command -v claude >/dev/null 2>&1; then
   claude plugin marketplace add "${PWD}/${PLUGINS_DIR}" 2>/dev/null || true
   claude plugin install compound@opentoolbar-plugins --scope project 2>/dev/null || true
-  ok "compound プラグイン登録完了 (/compound:ship, /compound:plan, /compound:review)"
+  ok "Compound plugin registered (/compound:ship, /compound:plan, /compound:review)"
 else
-  warn "claude CLI が見つかりません。手動で登録してください:"
+  warn "claude CLI not found. Please register manually:"
   warn "  claude plugin marketplace add ./plugins"
   warn "  claude plugin install compound@opentoolbar-plugins --scope project"
 fi
@@ -241,7 +241,7 @@ if [ -f "${OPENSPEC_DIR}/project.md" ] && ! grep -q "Compound Engineering" "${OP
 ## Compound Engineering Guidelines
 
 ### Skills
-- `/compound:ship <desc>` — Full autonomous cycle: plan → implement → verify → review → learn → archive.
+- `/compound:ship <desc>` — Full autonomous cycle: plan -> implement -> verify -> review -> learn -> archive.
 - `/compound:review <ref>` — Retroactive review with demo verification.
 - `/compound:plan <desc>` — Proposal only (team alignment).
 
@@ -258,7 +258,7 @@ if [ -f "${OPENSPEC_DIR}/project.md" ] && ! grep -q "Compound Engineering" "${OP
 - Review covers both code AND demo.
 - `openspec/learnings/LEARNINGS.md` compounds knowledge across changes.
 EOF
-  ok "project.md 更新完了"
+  ok "project.md updated"
 fi
 
 # === Step 6: config.yaml ===
@@ -268,30 +268,30 @@ if [ -f "$CONFIG_FILE" ] && ! grep -q "default_schema" "$CONFIG_FILE"; then
 elif [ ! -f "$CONFIG_FILE" ]; then
   echo "default_schema: compound" > "$CONFIG_FILE"
 fi
-ok "config.yaml 設定完了"
+ok "config.yaml configured"
 
-# === Step 7: Showboat/Rodney 確認 ===
-info "Showboat/Rodney の利用可能性を確認中..."
+# === Step 7: Showboat/Rodney availability check ===
+info "Checking Showboat/Rodney availability..."
 if command -v uvx >/dev/null 2>&1; then
-  ok "uvx が利用可能 (showboat/rodney は uvx 経由で実行)"
+  ok "uvx available (showboat/rodney run via uvx)"
 else
-  warn "uvx が見つかりません。Showboat/Rodneyの実行には uv のインストールが必要です:"
+  warn "uvx not found. Installing uv is required for Showboat/Rodney:"
   warn "  curl -LsSf https://astral.sh/uv/install.sh | sh"
 fi
 
-# === Step 8: AI ツール設定再生成 ===
-bunx @fission-ai/openspec@latest update --force 2>/dev/null || warn "openspec update 失敗。手動: bunx @fission-ai/openspec update"
+# === Step 8: Regenerate AI tool settings ===
+bunx @fission-ai/openspec@latest update --force 2>/dev/null || warn "openspec update failed. Manual: bunx @fission-ai/openspec update"
 
-# === 完了 ===
+# === Done ===
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-ok "セットアップ完了!"
+ok "Setup complete!"
 echo ""
-echo "  /compound:ship <desc>     全自動 (計画→実装→検証→レビュー→学習→保存)"
-echo "  /compound:review <ref>    既存コードの後追いレビュー + 検証"
-echo "  /compound:plan <desc>     チーム合意用proposal"
+echo "  /compound:ship <desc>     Full auto (plan->implement->verify->review->learn->archive)"
+echo "  /compound:review <ref>    Retroactive review + verification"
+echo "  /compound:plan <desc>     Proposal for team alignment"
 echo ""
-echo "  例: /compound:ship ユーザー認証にOAuth追加"
+echo "  Example: /compound:ship Add OAuth to user authentication"
 echo ""
-echo "  検証ツール: showboat (uvx showboat), rodney (uvx rodney)"
+echo "  Verification tools: showboat (uvx showboat), rodney (uvx rodney)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

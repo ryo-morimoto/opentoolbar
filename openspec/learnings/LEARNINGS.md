@@ -1,34 +1,34 @@
 # Project Learnings
 
-> AI agentは新しいchange開始時にこのファイルを参照する。
-> /compound:ship の archive ステップで自動追記される。
+> AI agents reference this file when starting a new change.
+> Automatically appended during the /compound:ship archive step.
 
 ---
 
-## 設計議論からの学び (2024-01)
+## Learnings from Design Discussion (2024-01)
 
-### Vercel Preview Comments の技術調査
+### Vercel Preview Comments Technical Research
 
-- Vercelは**エッジでスクリプトを自動注入**している（Preview Deployment時）
-- `@vercel/toolbar` パッケージで手動注入も可能
-- コメントは**DOM要素にバインド**される（CSSセレクタベース）
-- ブログより: "A comment marks exactly in the UI where things need to improve as it's actually attached to the underlying DOM element."
+- Vercel **auto-injects scripts at the edge** (during Preview Deployments)
+- `@vercel/toolbar` package allows manual injection
+- Comments are **bound to DOM elements** (CSS selector-based)
+- From their blog: "A comment marks exactly in the UI where things need to improve as it's actually attached to the underlying DOM element."
 
-### react-grab との関係
+### Relationship with react-grab
 
-- react-grabは**要素選択 + Reactコンポーネント情報取得**に特化
-- **プラグインシステム**がある（`__REACT_GRAB__.registerPlugin()`）
-- 本ツールはreact-grabの上に構築するか、同等のロジックを内包するか選択可能
+- react-grab specializes in **element selection + React component info extraction**
+- Has a **plugin system** (`__REACT_GRAB__.registerPlugin()`)
+- This tool can either build on top of react-grab or implement equivalent logic internally
 
-### マルチプロジェクト/Worktree対応
+### Multi-project / Worktree Support
 
-- localhost:3000だけでは識別不可能
-- **projectId + branch でキーを構成**する必要あり
+- localhost:3000 alone is not sufficient for identification
+- Need to **compose keys from projectId + branch**
 - localStorage: `otb:${projectId}:${branch}:${pathname}`
-- ファイル保存: `.comments/${branch}/${pathname}.json`
+- File storage: `.comments/${branch}/${pathname}.json`
 
-### 導入方式の選択
+### Integration Method Selection
 
-- **Script tag方式**がMVPに最適（react-grabと同じアプローチ）
-- Providerは侵襲性が高いため却下
-- Vite/Next Pluginは将来対応
+- **Script tag approach** is optimal for MVP (same approach as react-grab)
+- Provider pattern rejected due to high invasiveness
+- Vite/Next Plugin deferred to future
