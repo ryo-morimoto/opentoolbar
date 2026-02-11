@@ -1,4 +1,12 @@
 {
+  "extraKnownMarketplaces": {
+    "opentoolbar-plugins": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude/plugins"
+      }
+    }
+  },
   "enabledPlugins": {
     "compound@opentoolbar-plugins": true
   }
