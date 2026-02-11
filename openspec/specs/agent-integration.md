@@ -165,7 +165,7 @@ function exportAsPrompt(comments: Comment[]): string {
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 
 const server = new Server({
-  name: "react-ui-comments",
+  name: "opentoolbar",
   version: "1.0.0"
 });
 

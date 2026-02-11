@@ -1,7 +1,7 @@
 {
-  "name": "react-ui-comments",
+  "name": "opentoolbar",
   "version": "0.0.0",
-  "description": "Vercel Preview Comments の OSS 版。UI上で直接コメントを残し、AIエージェントに構造化して渡せる。",
+  "description": "Open-source alternative to Vercel Toolbar. Leave comments on UI and export to AI agents.",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -18,7 +18,7 @@
     }
   },
   "bin": {
-    "react-ui-comments": "./dist/cli.js"
+    "opentoolbar": "./dist/cli.js"
   },
   "scripts": {
     "dev": "vite",

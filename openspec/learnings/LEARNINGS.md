@@ -24,7 +24,7 @@
 
 - localhost:3000だけでは識別不可能
 - **projectId + branch でキーを構成**する必要あり
-- localStorage: `ruc:${projectId}:${branch}:${pathname}`
+- localStorage: `otb:${projectId}:${branch}:${pathname}`
 - ファイル保存: `.comments/${branch}/${pathname}.json`
 
 ### 導入方式の選択

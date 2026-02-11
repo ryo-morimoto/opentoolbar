@@ -1,6 +1,6 @@
-# react-ui-comments
+# opentoolbar
 
-Vercel Preview Comments のOSS版。開発中のReactアプリに対してUI上で直接コメントを残し、**AIエージェントに指摘内容を構造化して渡せる**ことが最大の差別化ポイント。
+Open-source alternative to Vercel Toolbar. UI上で直接コメントを残し、**AIエージェントに構造化して渡せる**ことが最大の差別化ポイント。
 
 ## Vision
 
@@ -16,9 +16,9 @@ AIエージェントが自動で修正提案・実装
 
 | ツール | 要素選択 | コメント | エージェント連携 |
 |--------|----------|----------|------------------|
-| Vercel Preview | ✅ | ✅ | ❌ |
+| @vercel/toolbar | ✅ | ✅ | ❌ |
 | react-grab | ✅ | ❌ | ✅（コピーのみ） |
-| **本ツール** | ✅ | ✅ | ✅（構造化+MCP） |
+| **opentoolbar** | ✅ | ✅ | ✅（構造化+MCP） |
 
 ## ターゲットユーザー
 

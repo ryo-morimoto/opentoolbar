@@ -12,7 +12,7 @@
 
 ```html
 <script
-  src="https://unpkg.com/react-ui-comments"
+  src="https://unpkg.com/opentoolbar"
   data-project-id="my-app"           <!-- 必須: プロジェクト識別 -->
   data-branch="feature-a"            <!-- オプション: ブランチ -->
   data-cli-port="4567"               <!-- オプション: CLIポート -->
@@ -23,7 +23,7 @@
 // Next.js / Vite での使用例
 {process.env.NODE_ENV === 'development' && (
   <script
-    src="https://unpkg.com/react-ui-comments"
+    src="https://unpkg.com/opentoolbar"
     data-project-id={process.env.npm_package_name}
   />
 )}
@@ -34,7 +34,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  CLI（オプション）                                               │
-│  $ npx react-ui-comments --port 3000                           │
+│  $ npx opentoolbar --port 3000                                 │
 │  → プロジェクトルートで起動                                       │
 │  → .comments/ ディレクトリにJSON保存                             │
 │  → WebSocket/HTTPで ブラウザと同期                               │
@@ -73,8 +73,8 @@
 ### localStorage キー設計
 
 ```typescript
-const key = `ruc:${projectId}:${branch}:${pathname}`;
-// 例: "ruc:my-app:feature-a:/"
+const key = `otb:${projectId}:${branch}:${pathname}`;
+// 例: "otb:my-app:feature-a:/"
 ```
 
 ## ブラウザ ↔ CLI 通信

@@ -1,64 +1,59 @@
-# react-ui-comments
+# opentoolbar
 
-> Vercel Preview Comments の OSS 版。UI上で直接コメントを残し、AIエージェントに構造化して渡せる。
+> Open-source alternative to Vercel Toolbar. Leave comments on UI and export to AI agents.
 
-🚧 **Work in Progress** — 開発中
+🚧 **Work in Progress**
 
-## 特徴
+## Features
 
-- **DOM要素にバインドされたコメント** — Vercelと同様のUX
-- **AIエージェント連携** — コメントを構造化して Cursor / Claude Code に渡せる
-- **マルチプロジェクト対応** — worktree / 複数ブランチでも混ざらない
-- **Script tag 導入** — 1行追加で動作
+- **DOM-bound comments** — Same UX as Vercel Preview Comments
+- **AI agent integration** — Export structured feedback to Cursor / Claude Code
+- **Multi-project support** — Works with worktrees and multiple branches
+- **Script tag install** — One line to get started
 
-## インストール
+## Install
 
 ```bash
-npm install react-ui-comments
+npm install opentoolbar
 ```
 
-## 使い方
+## Usage
 
-### Script tag（推奨）
+### Script tag (recommended)
 
 ```tsx
 // Next.js
 {process.env.NODE_ENV === 'development' && (
   <script
-    src="https://unpkg.com/react-ui-comments"
+    src="https://unpkg.com/opentoolbar"
     data-project-id="my-app"
   />
 )}
 ```
 
-### CLI（オプション）
+### CLI (optional)
 
 ```bash
-# ファイル保存・MCP連携を有効化
-npx react-ui-comments
+# Enable file storage + MCP integration
+npx opentoolbar
 ```
 
-## エージェント連携
+## Agent Integration
 
 ```
-[Copy as Prompt] ボタン → クリップボードにコピー
+[Copy as Prompt] button → Copies to clipboard
 ```
 
-AIエージェントに渡せる構造化されたフィードバックが生成されます。
+Generates structured feedback ready for AI agents.
 
-## 開発
+## Development
 
 ```bash
-# セットアップ
 npm install
-
-# 開発サーバー
 npm run dev
-
-# テスト
 npm test
 ```
 
-## ライセンス
+## License
 
 MIT
