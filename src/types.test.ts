@@ -1,47 +1,144 @@
 import { describe, expect, it } from "vitest";
 import { init } from "./index";
-import type { Comment, CommentPage, ElementAnchor } from "./types";
+import type {
+  DomAnchor,
+  SourceAnchor,
+  Author,
+  Comment,
+  CommentFile,
+} from "./types";
 
-describe("types", () => {
-  it("Comment satisfies the interface", () => {
+describe("DomAnchor", () => {
+  it("satisfies the interface", () => {
+    const anchor: DomAnchor = {
+      selector: "#btn",
+      textContent: "Click me",
+      tagName: "button",
+      boundingRect: { x: 0, y: 0, width: 100, height: 32 },
+      htmlSnapshot: "<button>Click me</button>",
+    };
+    expect(anchor.selector).toBe("#btn");
+    expect(anchor.textContent).toBe("Click me");
+  });
+});
+
+describe("SourceAnchor", () => {
+  it("satisfies the interface with all fields", () => {
+    const anchor: SourceAnchor = {
+      filePath: "src/components/LoginButton.tsx",
+      componentName: "LoginButton",
+      lineNumber: 42,
+      commitSha: "abc123def456",
+    };
+    expect(anchor.filePath).toBe("src/components/LoginButton.tsx");
+  });
+
+  it("allows null for componentName and lineNumber", () => {
+    const anchor: SourceAnchor = {
+      filePath: "src/App.tsx",
+      componentName: null,
+      lineNumber: null,
+      commitSha: "abc123def456",
+    };
+    expect(anchor.componentName).toBeNull();
+  });
+});
+
+describe("Author", () => {
+  it("represents a git-config author", () => {
+    const author: Author = {
+      name: "Alice",
+      email: "alice@example.com",
+      avatarUrl: null,
+      source: "git-config",
+    };
+    expect(author.source).toBe("git-config");
+    expect(author.avatarUrl).toBeNull();
+  });
+
+  it("represents a github author", () => {
+    const author: Author = {
+      name: "Bob",
+      email: "bob@example.com",
+      avatarUrl: "https://avatars.githubusercontent.com/u/12345",
+      source: "github",
+    };
+    expect(author.source).toBe("github");
+    expect(author.avatarUrl).toBeTruthy();
+  });
+});
+
+describe("Comment", () => {
+  it("satisfies the interface with domAnchor only", () => {
     const comment: Comment = {
-      id: "test-id",
-      anchor: {
-        selector: "#btn",
-        boundingRect: new DOMRect(0, 0, 100, 32),
-        tagName: "BUTTON",
-        htmlSnapshot: "<button>click</button>",
+      id: "abc123def456",
+      text: "This button should be red",
+      branch: "main",
+      domAnchor: {
+        selector: "button.primary",
+        textContent: "Submit",
+        tagName: "button",
+        boundingRect: { x: 100, y: 200, width: 80, height: 32 },
+        htmlSnapshot: '<button class="primary">Submit</button>',
       },
-      text: "test comment",
+      sourceAnchor: null,
+      author: {
+        name: "Alice",
+        email: "alice@example.com",
+        avatarUrl: null,
+        source: "git-config",
+      },
       status: "active",
-      createdAt: "2024-01-01T00:00:00Z",
-      updatedAt: "2024-01-01T00:00:00Z",
+      createdAt: "2025-02-11T10:00:00Z",
+      updatedAt: "2025-02-11T10:00:00Z",
     };
-    expect(comment.id).toBe("test-id");
     expect(comment.status).toBe("active");
+    expect(comment.sourceAnchor).toBeNull();
   });
 
-  it("ElementAnchor accepts optional fields", () => {
-    const anchor: ElementAnchor = {
-      selector: "[data-testid='login']",
-      componentName: "LoginForm",
-      filePath: "src/LoginForm.tsx:24",
-      boundingRect: new DOMRect(0, 0, 80, 32),
-      textContent: "Login",
-      tagName: "BUTTON",
-      htmlSnapshot: "<button>Login</button>",
+  it("supports resolved status", () => {
+    const comment: Comment = {
+      id: "xyz789",
+      text: "Fixed",
+      branch: "feature/auth",
+      domAnchor: {
+        selector: "#header",
+        textContent: "Hello",
+        tagName: "h1",
+        boundingRect: { x: 0, y: 0, width: 500, height: 48 },
+        htmlSnapshot: "<h1>Hello</h1>",
+      },
+      sourceAnchor: {
+        filePath: "src/Header.tsx",
+        componentName: "Header",
+        lineNumber: 10,
+        commitSha: "def456",
+      },
+      author: {
+        name: "Bob",
+        email: "bob@example.com",
+        avatarUrl: "https://avatars.githubusercontent.com/u/12345",
+        source: "github",
+      },
+      status: "resolved",
+      createdAt: "2025-02-10T10:00:00Z",
+      updatedAt: "2025-02-11T10:00:00Z",
     };
-    expect(anchor.componentName).toBe("LoginForm");
+    expect(comment.status).toBe("resolved");
+    expect(comment.sourceAnchor?.filePath).toBe("src/Header.tsx");
   });
+});
 
-  it("CommentPage holds comments array", () => {
-    const page: CommentPage = {
+describe("CommentFile", () => {
+  it("satisfies the interface", () => {
+    const file: CommentFile = {
       version: 1,
-      pathname: "/",
-      updatedAt: "2024-01-01T00:00:00Z",
+      projectId: "my-app",
+      pathname: "/dashboard",
       comments: [],
     };
-    expect(page.comments).toHaveLength(0);
+    expect(file.version).toBe(1);
+    expect(file.comments).toHaveLength(0);
   });
 });
 
